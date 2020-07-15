@@ -1,3 +1,37 @@
+Install it in LXC
+
+stgraber, [SOLVED]
+
+Using your original suggestion and running the following on the host fixed the problem.
+chmod 666 /dev/net/tun
+
+Thanks for your assistance…
+
+So for a recap for anyone else having this problem:
+Add the following to your container config file in /var/lib/lxc/[container]/config
+
+lxc.mount.entry = /dev/net/tun dev/net/tun none bind,create=file
+
+Then start the container and check the host /dev/net/tun permissions:
+
+$ ls -l /dev/net/tun
+crw-rw-rw- 1 root root 10, 200 Apr 21 20:15 /dev/net/tun
+NOTE: I didn’t need this step on a second container host I am running. The permissions were correct. However, if they are not 666 as above run (on the host):
+
+chmod 666 /dev/net/tun
+
+Playbook config
+
+cat vpn.yml 
+- hosts: host
+  gather_facts: true
+  roles:
+    - {role: ansible-role-openvpn, clients: [user1, user2, user3],
+                        openvpn_port: 4300}
+
+
+}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+
 openvpn
 =========
 [![Build Status](https://travis-ci.org/kyl191/ansible-role-openvpn.svg?branch=master)](https://travis-ci.org/kyl191/ansible-role-openvpn)
